@@ -1,11 +1,12 @@
 import { Platform, StyleSheet, Text, TextInput, View } from "react-native";
 import React, { useState } from "react";
+import Screen from "./Screen";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   return (
-    <View style={styles.screen}>
+    <Screen style={styles.center}>
       <Text style={styles.title}>Login</Text>
       <TextInput
         style={styles.input}
@@ -13,17 +14,14 @@ const Login = () => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-    </View>
+    </Screen>
   );
 };
 
 export default Login;
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: "#0f172a",
-    paddingTop: Platform.OS === "android" ? 25 : 0,
+  center: {
     alignItems: "center",
     justifyContent: "center",
   },

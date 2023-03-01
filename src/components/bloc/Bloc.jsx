@@ -12,11 +12,12 @@ const Bloc = ({
   ...rest
 }) => {
   const blocStyles = StyleSheet.flatten([
+    { width: "100%" },
     flex !== undefined && { flex },
     row !== undefined && { flexDirection: "row" },
     color !== undefined && { backgroundColor: color },
     align !== undefined && { alignItems: align },
-    justify !== undefined && { justifyItems: justify },
+    justify !== undefined && { justifyContent: justify },
     style,
   ]);
   return (

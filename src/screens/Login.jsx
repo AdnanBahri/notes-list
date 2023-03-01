@@ -4,10 +4,17 @@ import Screen from "./Screen";
 import { Bloc, Button, Input, Text } from "../components";
 import { Colors } from "../utils/Colors";
 import { Ionicons } from "@expo/vector-icons";
+import { Formik } from "formik";
+import * as Yup from "yup";
+
+const LoginSchema = Yup.object().shape({
+  email: Yup.string().email("Invalid Email.").required("The email is Required"),
+  password: Yup.string()
+    .required("The password is Required.")
+    .min(8, "Too Short"),
+});
 
 const Login = ({ navigation }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   return (
     <Screen style={styles.center}>
       <Bloc style={{ flex: 1, width: "90%" }}>
@@ -31,63 +38,116 @@ const Login = ({ navigation }) => {
           Good to see you again!
         </Text>
         <Bloc style={{ flex: 1, paddingBottom: 20 }} justify="space-between">
-          <Bloc>
-            <Bloc row style={styles.input}>
-              <Ionicons
-                name="mail"
-                size={24}
-                color={Colors.textLighter}
-                style={{ marginRight: 8 }}
-              />
-              <Input
-                placeholder="name@example.xyz"
-                keyboardType="email-address"
-                style={{ flex: 1 }}
-                value={email}
-                onChangeText={(e) => setEmail(e.target.value)}
-              />
-            </Bloc>
-            <Bloc row style={styles.input}>
-              <Ionicons
-                name="ios-lock-closed"
-                size={24}
-                color={Colors.textLighter}
-                style={{ marginRight: 8 }}
-              />
-              <Input
-                placeholder="Password"
-                secureTextEntry
-                value={password}
-                onChangeText={(e) => setPassword(e.target.value)}
-                style={{ flex: 1 }}
-              />
-            </Bloc>
-            <Bloc row justify={"flex-end"}>
-              <Button
-                onClick={(e) =>
-                  Alert.alert("Forgot Password", "Recover Your password soon")
-                }
-              >
-                <Text color={Colors.blueColor}>Forgot Password?</Text>
-              </Button>
-            </Bloc>
-            <Button
-              onClick={(e) =>
-                Alert.alert("Forgot Password", "Recover Your password soon")
-              }
-              color={Colors.main}
-              radius={8}
-              style={{
-                paddingVertical: 8,
-                paddingHorizontal: 12,
-                marginTop: 16,
-              }}
-            >
-              <Text color={Colors.whiteColor} align="center">
-                Sign in
-              </Text>
-            </Button>
-          </Bloc>
+          <Formik
+            initialValues={{
+              email: "",
+              password: "",
+            }}
+            validationSchema={LoginSchema}
+            onSubmit={(values) => Alert.alert("Login", JSON.stringify(values))}
+          >
+            {({
+              isValid,
+              isSubmitting,
+              values,
+              handleChange,
+              handleSubmit,
+              errors,
+              touched,
+              setFieldTouched,
+            }) => (
+              <Bloc>
+                <Bloc
+                  style={{
+                    marginBottom: 16,
+                  }}
+                >
+                  <Bloc row style={styles.input}>
+                    <Ionicons
+                      name="mail"
+                      size={24}
+                      color={Colors.textLighter}
+                      style={{ marginRight: 8 }}
+                    />
+                    <Input
+                      name="email"
+                      placeholder="name@example.xyz"
+                      keyboardType="email-address"
+                      style={{ flex: 1 }}
+                      autoCapitalize={false}
+                      onChangeText={handleChange("email")}
+                      onBlur={() => setFieldTouched("email")}
+                      value={values.email}
+                    />
+                  </Bloc>
+                  {touched.email && errors.email && (
+                    <Text
+                      color={Colors.errorRed}
+                      size={12}
+                      style={{ marginLeft: 4 }}
+                    >
+                      {errors.email}
+                    </Text>
+                  )}
+                </Bloc>
+                <Bloc
+                  style={{
+                    marginBottom: 16,
+                  }}
+                >
+                  <Bloc row style={styles.input}>
+                    <Ionicons
+                      name="ios-lock-closed"
+                      size={24}
+                      color={Colors.textLighter}
+                      style={{ marginRight: 8 }}
+                    />
+                    <Input
+                      name="password"
+                      placeholder="Password"
+                      secureTextEntry
+                      autoCapitalize={false}
+                      onChangeText={handleChange("password")}
+                      onBlur={() => setFieldTouched("password")}
+                      value={values.password}
+                      style={{ flex: 1 }}
+                    />
+                  </Bloc>
+                  {touched.password && errors.password && (
+                    <Text
+                      color={Colors.errorRed}
+                      size={12}
+                      style={{ marginLeft: 4 }}
+                    >
+                      {errors.password}
+                    </Text>
+                  )}
+                </Bloc>
+                <Bloc row justify={"flex-end"}>
+                  <Button onClick={handleSubmit}>
+                    <Text color={Colors.blueColor}>Forgot Password?</Text>
+                  </Button>
+                </Bloc>
+                <Button
+                  onClick={(e) =>
+                    Alert.alert("Forgot Password", "Recover Your password soon")
+                  }
+                  color={Colors.main}
+                  radius={8}
+                  disabled={!isValid || isSubmitting}
+                  style={{
+                    paddingVertical: 8,
+                    paddingHorizontal: 12,
+                    marginTop: 16,
+                  }}
+                >
+                  <Text color={Colors.whiteColor} align="center">
+                    Sign in
+                  </Text>
+                </Button>
+              </Bloc>
+            )}
+          </Formik>
           <Bloc row align="center" justify="center">
             <Text color={Colors.whiteColor}>Don't have an account? </Text>
             <Button onClick={(e) => navigation.navigate("Register")}>
@@ -115,6 +175,6 @@ const styles = StyleSheet.create({
     borderColor: "#2e3644",
     borderRadius: 8,
     color: "#e7e1d7",
-    marginBottom: 16,
+    marginBottom: 4,
   },
 });

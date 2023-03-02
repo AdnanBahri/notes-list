@@ -1,20 +1,35 @@
 import { View, Text } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import Login from "../screens/Login";
 import Register from "../screens/Register";
+import Home from "../screens/Home";
+import { useSelector, useDispatch } from "react-redux";
 
-const AuthStack = createStackNavigator();
+// Main Stack
+const Stack = createStackNavigator();
 
 const AppNavigator = () => {
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  console.log("Navigator", isLoggedIn);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated);
+  }, [isAuthenticated]);
+
+  if (!isLoggedIn)
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Register" component={Register} />
+      </Stack.Navigator>
+    );
+
   return (
-    <AuthStack.Navigator
-      initialRouteName="Login"
-      screenOptions={{ headerShown: false }}
-    >
-      <AuthStack.Screen name="Login" component={Login} />
-      <AuthStack.Screen name="Register" component={Register} />
-    </AuthStack.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Home" component={Home} />
+    </Stack.Navigator>
   );
 };
 

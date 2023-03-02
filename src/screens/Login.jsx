@@ -1,11 +1,14 @@
-import { Alert, StyleSheet, TextInput } from "react-native";
-import React, { useState } from "react";
+import { ActivityIndicator, Alert, StyleSheet, TextInput } from "react-native";
+import React, { useEffect, useState } from "react";
 import Screen from "./Screen";
 import { Bloc, Button, Input, Text } from "../components";
 import { Colors } from "../utils/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Formik } from "formik";
 import * as Yup from "yup";
+import { useTheme } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "./../redux/slices/AuthSlice";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid Email.").required("The email is Required"),
@@ -15,6 +18,13 @@ const LoginSchema = Yup.object().shape({
 });
 
 const Login = ({ navigation }) => {
+  const { loading, isAuthenticated } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const handleLogin = (values) => dispatch(login({ ...values }));
+
+  useEffect(() => {
+    if (isAuthenticated) console.log("Authentication passes Successfully");
+  }, [loading]);
   return (
     <Screen style={styles.center}>
       <Bloc style={{ flex: 1, width: "90%" }}>
@@ -44,7 +54,7 @@ const Login = ({ navigation }) => {
               password: "",
             }}
             validationSchema={LoginSchema}
-            onSubmit={(values) => Alert.alert("Login", JSON.stringify(values))}
+            onSubmit={(values) => handleLogin(values)}
           >
             {({
               isValid,
@@ -74,7 +84,6 @@ const Login = ({ navigation }) => {
                       placeholder="name@example.xyz"
                       keyboardType="email-address"
                       style={{ flex: 1 }}
-                      autoCapitalize={false}
                       onChangeText={handleChange("email")}
                       onBlur={() => setFieldTouched("email")}
                       value={values.email}
@@ -106,7 +115,6 @@ const Login = ({ navigation }) => {
                       name="password"
                       placeholder="Password"
                       secureTextEntry
-                      autoCapitalize={false}
                       onChangeText={handleChange("password")}
                       onBlur={() => setFieldTouched("password")}
                       value={values.password}
@@ -129,20 +137,24 @@ const Login = ({ navigation }) => {
                   </Button>
                 </Bloc>
                 <Button
-                  onClick={(e) =>
-                    Alert.alert("Forgot Password", "Recover Your password soon")
-                  }
+                  onClick={handleSubmit}
                   color={Colors.main}
                   radius={8}
                   disabled={!isValid || isSubmitting}
                   style={{
-                    paddingVertical: 8,
+                    paddingVertical: 12,
                     paddingHorizontal: 12,
                     marginTop: 16,
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  <Text color={Colors.whiteColor} align="center">
-                    Sign in
+                  <Text weight={"500"} color={Colors.whiteColor} align="center">
+                    {loading ? (
+                      <ActivityIndicator color={Colors.whiteColor} size={24} />
+                    ) : (
+                      "Sign in"
+                    )}
                   </Text>
                 </Button>
               </Bloc>

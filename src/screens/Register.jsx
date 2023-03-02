@@ -1,11 +1,13 @@
-import { Alert, StyleSheet } from "react-native";
-import React, { useState } from "react";
+import { ActivityIndicator, Alert, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
 import Screen from "./Screen";
 import { Bloc, Button, Input, Text } from "../components";
 import { Colors } from "../utils/Colors";
 import * as Yup from "yup";
 import { Ionicons } from "@expo/vector-icons";
 import { Formik } from "formik";
+import { useSelector, useDispatch } from "react-redux";
+import { register } from "../redux/slices/AuthSlice";
 
 const RegisterSchema = Yup.object().shape({
   email: Yup.string().email("Invalid Email.").required("The email is Required"),
@@ -18,6 +20,18 @@ const RegisterSchema = Yup.object().shape({
 });
 
 const Register = ({ navigation }) => {
+  const { loading, registered } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  console.log("Registered", registered);
+
+  // Handle Register Action
+  const handleRegister = ({ email, password }) => {
+    dispatch(register({ email, password }));
+  };
+
+  useEffect(() => {
+    if (registered) navigation.goBack();
+  }, [registered]);
   return (
     <Screen style={styles.center}>
       <Bloc style={{ flex: 1, width: "90%" }}>
@@ -55,9 +69,7 @@ const Register = ({ navigation }) => {
               confirmPassword: "",
             }}
             validationSchema={RegisterSchema}
-            onSubmit={(values) =>
-              Alert.alert("Register", JSON.stringify(values))
-            }
+            onSubmit={(values) => handleRegister(values)}
           >
             {({
               values,
@@ -87,7 +99,6 @@ const Register = ({ navigation }) => {
                       placeholder="name@example.xyz"
                       keyboardType="email-address"
                       style={{ flex: 1 }}
-                      autoCapitalize={false}
                       onChangeText={handleChange("email")}
                       onBlur={() => setFieldTouched("email")}
                       value={values.email}
@@ -119,7 +130,6 @@ const Register = ({ navigation }) => {
                       name="password"
                       placeholder="Password"
                       secureTextEntry
-                      autoCapitalize={false}
                       onChangeText={handleChange("password")}
                       onBlur={() => setFieldTouched("password")}
                       value={values.password}
@@ -152,7 +162,6 @@ const Register = ({ navigation }) => {
                       name="confirmPassword"
                       placeholder="Confirm Password"
                       secureTextEntry
-                      autoCapitalize={false}
                       onChangeText={handleChange("confirmPassword")}
                       onBlur={() => setFieldTouched("confirmPassword")}
                       value={values.confirmPassword}
@@ -171,17 +180,23 @@ const Register = ({ navigation }) => {
                 </Bloc>
                 <Button
                   onClick={handleSubmit}
-                  disabled={!isValid || isSubmitting}
+                  // disabled={!isValid || isSubmitting}
                   color={Colors.main}
                   radius={8}
                   style={{
                     paddingVertical: 8,
                     paddingHorizontal: 12,
                     marginTop: 16,
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   <Text color={Colors.whiteColor} align="center">
-                    Continue
+                    {loading ? (
+                      <ActivityIndicator color={Colors.whiteColor} size={24} />
+                    ) : (
+                      "Continue"
+                    )}
                   </Text>
                 </Button>
               </Bloc>
@@ -198,12 +213,6 @@ export default Register;
 const styles = StyleSheet.create({
   center: {
     alignItems: "center",
-  },
-  title: {
-    color: "#fff",
-    fontWeight: 700,
-    fontSize: 24,
-    marginBottom: 40,
   },
   input: {
     paddingVertical: 8,
